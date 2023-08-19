@@ -7,6 +7,9 @@ import com.lightema.xinydays.modules.users.repository.UserRepository;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +19,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
 
@@ -69,5 +72,19 @@ public class UserService {
 
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(2L);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        final User user = userRepository.getByEmail(username);
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities("USER")
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
+                .build();
     }
 }

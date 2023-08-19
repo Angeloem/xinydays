@@ -50,8 +50,6 @@ public class JwtGeneratorImpl implements JwtGeneratorInterface {
         claims.put("body", jwt.getBody());
         claims.put("header", jwt.getHeader());
 
-        System.out.println(claims);
-
         return UserJWTClaims.fromClaims((Map<String, Object>) jwt.getBody());
     }
 

@@ -11,8 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @AllArgsConstructor
@@ -21,17 +20,43 @@ public class ProjectService {
     public ProjectRepository projectRepository;
     public UserService userService;
 
-    public List<Project> findAll() {
-        return this.projectRepository.findAll();
-    }
-
-    public Project getProjectById(Long id) {
+    private User getCurrentUser() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
+        final Long userId = Long.valueOf(authentication.getPrincipal().toString());
 
         System.out.println("authentication: === " + authentication.getCredentials());
 
-        return this.projectRepository.findById(id).orElse(null);
+        return this.userService.getUserById(userId).orElseThrow(Exception::new);
+    }
+
+    public List findAll() {
+        try {
+            final User user = getCurrentUser();
+            return this.projectRepository.findByUserId(user.getId());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
+            final Map<String, Object> out = new HashMap<>();
+            out.put("error", e);
+            out.put("status", "error");
+            return List.of(out);
+        }
+    }
+
+    public Optional<Project> getProjectById(Long id)  {
+        final Project project = this.projectRepository.findById(id).orElse(null);
+
+        assert project != null;
+        try {
+            if (Objects.equals(project.user.getId(), getCurrentUser().getId())) {
+                return Optional.of(project);
+            }
+        }
+        catch (Exception e) {
+            System.out.println("Exception: " + e);
+            return Optional.empty();
+        }
+
+        return Optional.empty();
     }
 
     public Project createProject(ProjectCreateDto projectCreateDto) {

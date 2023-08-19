@@ -7,6 +7,7 @@ import com.lightema.xinydays.modules.projects.dtos.ProjectCreateDto;
 import com.lightema.xinydays.modules.projects.entities.Project;
 import com.lightema.xinydays.modules.projects.services.ProjectService;
 import lombok.AllArgsConstructor;
+import net.minidev.json.JSONArray;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,24 +35,29 @@ public class ProjectController {
 
     @GetMapping("")
     public ResponseEntity<String> getAllProjects() {
-        List<Project> projects = projectService.findAll();
+        List projects = projectService.findAll();
 
         String out = "";
         try {
             out = getObjectMapper().writeValueAsString(projects);
-        } catch (JsonProcessingException e) {
-            System.err.println("Error processing: " + projects + ". Exception: " + e);
-            final String err = "Error processing: " + projects + ". Exception: " + e;
-            return new ResponseEntity(err, getHeaders(), HttpStatus.BAD_REQUEST);
-        }
 
-        return new ResponseEntity(out, getHeaders(), HttpStatus.OK);
+            return new ResponseEntity<>(out, getHeaders(), HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+            final String err = "Error processing: " + projects + ". Exception: " + e;
+            return new ResponseEntity<>(err, getHeaders(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("{id}")
     public ResponseEntity getProjectById(@PathVariable String id) throws JsonProcessingException {
-        final Project project = projectService.getProjectById(Long.valueOf(id));
-        return new ResponseEntity(getObjectMapper().writeValueAsString(project), getHeaders(), HttpStatus.OK);
+        final Optional<Project> project = projectService.getProjectById(Long.valueOf(id));
+
+        if (project.isEmpty()) {
+            return new ResponseEntity<String>("Project not found", getHeaders(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity(getObjectMapper().writeValueAsString(project.get()), getHeaders(),
+                HttpStatus.OK);
     }
 
     @GetMapping("user/{userId}")

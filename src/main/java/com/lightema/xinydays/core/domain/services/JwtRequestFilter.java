@@ -1,14 +1,15 @@
 package com.lightema.xinydays.core.domain.services;
 
-import com.lightema.xinydays.modules.users.entities.User;
-import com.lightema.xinydays.modules.users.services.UserService;
+import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Component;
+import com.lightema.xinydays.modules.users.entities.User;
+import org.springframework.web.filter.OncePerRequestFilter;
+import com.lightema.xinydays.modules.users.services.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,16 +17,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@AllArgsConstructor
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-    @Autowired
     private UserService userService;
-
-    @Autowired
     private JwtGeneratorImpl jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain chain)
             throws ServletException, IOException {
 
         final String requestTokenHeader = request.getHeader("Authorization");
@@ -51,10 +53,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             final User user = this.userService.getUserByEmail(email);
 
+            System.out.println("user: " + user.getFirstName());
+
             // If the token is valid, set up Spring Security's Authentication manually
             if (jwtTokenUtil.validateToken(jwtToken, user)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        user, null);
+                        user.getId(), user.getPassword());
                 usernamePasswordAuthenticationToken
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 // Specify that the current user is authenticated.
