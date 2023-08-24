@@ -33,7 +33,6 @@ public class UserService implements UserDetailsService {
         final User newUser = new User();
 
         final String encodedPassword = passwordEncoder.encode(user.getPassword());
-        System.out.println("============encodedPassword: " + encodedPassword);
         newUser.setFirstName(user.getFirstName());
         newUser.setLastName(user.getLastName());
         newUser.setEmail(user.getEmail());
@@ -47,7 +46,6 @@ public class UserService implements UserDetailsService {
         try {
             return userRepository.findAll();
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
             return new ArrayList<>();
         }
     }
@@ -71,7 +69,7 @@ public class UserService implements UserDetailsService {
     }
 
     public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(2L);
+        return userRepository.findById(userId);
     }
 
     @Override
@@ -81,10 +79,10 @@ public class UserService implements UserDetailsService {
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities("USER")
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
+                .accountExpired(!user.isAccountNonExpired())
+                .accountLocked(!user.isAccountNonLocked())
+                .credentialsExpired(!user.isCredentialsNonExpired())
+                .disabled(!user.isEnabled())
                 .build();
     }
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/projects")
+@RequestMapping("/api/projects")
 public class ProjectController {
     private ProjectService projectService;
     private JSONConverterConfig jsonConverterConfig;
@@ -56,7 +56,9 @@ public class ProjectController {
             return new ResponseEntity<String>("Project not found", getHeaders(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity(getObjectMapper().writeValueAsString(project.get()), getHeaders(),
+        return new ResponseEntity(
+                getObjectMapper().writeValueAsString(project.get()),
+                getHeaders(),
                 HttpStatus.OK);
     }
 

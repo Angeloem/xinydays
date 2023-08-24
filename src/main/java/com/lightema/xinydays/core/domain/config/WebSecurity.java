@@ -1,38 +1,55 @@
 package com.lightema.xinydays.core.domain.config;
 
-import com.lightema.xinydays.core.domain.services.JwtRequestFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.lightema.xinydays.core.domain.services.UserAccountConfigurer;
+import com.lightema.xinydays.modules.users.services.UserService;
+import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@AllArgsConstructor
 @EnableWebSecurity
-public class WebSecurity  {
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+public class WebSecurity {
+    private final UserService userService;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/api/auth/**")
-                .permitAll()
-                .and()
-                .authorizeRequests()
-                .antMatchers("/api/**")
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.authorizeRequests(
+                        authorizeRequests -> {
+                            authorizeRequests
+                                    .antMatchers("/api/auth/**")
+                                    .permitAll();
+                            authorizeRequests.anyRequest()
+                                    .authenticated();
+                        }
+                )
+                .apply(new UserAccountConfigurer(
+                        new PasswordConfig().passwordEncoder(),
+                        userService));
 
         return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return userService;
+    }
+
+
+    @Bean
+    ApplicationListener<AuthenticationSuccessEvent> successListener() {
+        return event -> {
+            System.out.println(String.format("🎉 [%s] %s",
+                    event.getAuthentication().getClass().getSimpleName(),
+                    event.getAuthentication().getName()
+            ));
+        };
     }
 }

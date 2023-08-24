@@ -13,14 +13,13 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     private UserService userService;
 
     @GetMapping("get")
     public List<User> getUsers() {
         // we are going to log to see if it works
-        System.out.println("getUsers");
         return userService.getUsers();
     }
 

@@ -1,70 +1,40 @@
 package com.lightema.xinydays.core.domain.services;
 
-import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.stereotype.Component;
-import com.lightema.xinydays.modules.users.entities.User;
-import org.springframework.web.filter.OncePerRequestFilter;
-import com.lightema.xinydays.modules.users.services.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-@AllArgsConstructor
-@Component
-public class JwtRequestFilter extends OncePerRequestFilter {
-    private UserService userService;
-    private JwtGeneratorImpl jwtTokenUtil;
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull FilterChain chain)
-            throws ServletException, IOException {
+public class JwtRequestFilter extends AuthenticationFilter {
+    private final static String HEADER_NAME = "Authorization";
+    private final static String TOKEN_PREFIX = "Bearer ";
 
-        final String requestTokenHeader = request.getHeader("Authorization");
-
-        String email = null;
-        String jwtToken = null;
-
-        // Remove "Bearer " from the header
-        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-            jwtToken = requestTokenHeader.substring(7);
-            try {
-                email = jwtTokenUtil.getEmailFromJwt(jwtToken);
-            } catch (IllegalArgumentException e) {
-                System.out.println("Unable to get JWT Token");
-            } catch (ExpiredJwtException e) {
-                System.out.println("JWT Token has expired");
-            }
-        } else {
-            logger.warn("JWT Token does not begin with Bearer String");
+    private static final AuthenticationConverter authenticationConverter = req -> {
+        if (req.getHeader(HEADER_NAME) != null && req.getHeader(HEADER_NAME).startsWith(TOKEN_PREFIX)) {
+            return JwtAuthentication.startAuthenticating(req.getHeader(HEADER_NAME).substring(TOKEN_PREFIX.length()));
         }
+        return null;
+    };
 
-        // Once we get the token, validate it.
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            final User user = this.userService.getUserByEmail(email);
+    AuthenticationFailureHandler failureHandler = (request, response, exception) -> {
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType("text/plain;charset=utf8");
+        response.getWriter().write(exception.getMessage());
+    };
+    // noop
+    AuthenticationSuccessHandler successHandler = (request, response, authentication) -> {
+        // noop
+    };
 
-            System.out.println("user: " + user.getFirstName());
-
-            // If the token is valid, set up Spring Security's Authentication manually
-            if (jwtTokenUtil.validateToken(jwtToken, user)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        user.getId(), user.getPassword());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // Specify that the current user is authenticated.
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            }
-        }
-        chain.doFilter(request, response);
+    JwtRequestFilter(AuthenticationManager authenticationManager) {
+        super(authenticationManager, authenticationConverter);
+        setFailureHandler(failureHandler);
+        setSuccessHandler(successHandler);
     }
 }

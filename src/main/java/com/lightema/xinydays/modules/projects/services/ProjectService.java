@@ -22,11 +22,9 @@ public class ProjectService {
 
     private User getCurrentUser() throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final Long userId = Long.valueOf(authentication.getPrincipal().toString());
+        var user = (User) authentication.getPrincipal();
 
-        System.out.println("authentication: === " + authentication.getCredentials());
-
-        return this.userService.getUserById(userId).orElseThrow(Exception::new);
+        return this.userService.getUserById(user.getId()).orElseThrow(Exception::new);
     }
 
     public List findAll() {
@@ -34,7 +32,6 @@ public class ProjectService {
             final User user = getCurrentUser();
             return this.projectRepository.findByUserId(user.getId());
         } catch (Exception e) {
-            System.out.println("Exception: " + e);
             final Map<String, Object> out = new HashMap<>();
             out.put("error", e);
             out.put("status", "error");
@@ -52,7 +49,6 @@ public class ProjectService {
             }
         }
         catch (Exception e) {
-            System.out.println("Exception: " + e);
             return Optional.empty();
         }
 
@@ -65,8 +61,6 @@ public class ProjectService {
         project.setDescription(projectCreateDto.getDescription());
 
         final Long userId = projectCreateDto.getUserId();
-
-        System.out.println("projectCreateDto.getUserId(): " + projectCreateDto.getDueDate());
 
         //
         final Optional<User> user = this.userService.getUserById(userId);
@@ -82,11 +76,7 @@ public class ProjectService {
         final Date date = new Date(projectCreateDto.getDueDate().getTime());
         project.setDueDate(date);
 
-        System.out.println("project.getDueDate(): " + project.getDueDate());
-
         final Project project1 = this.projectRepository.save(project);
-
-        System.out.println(project1.toString());
 
         return project1;
     }
