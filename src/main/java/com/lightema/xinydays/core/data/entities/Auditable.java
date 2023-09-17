@@ -7,7 +7,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class Auditable {
@@ -15,6 +14,9 @@ public class Auditable {
     @GeneratedValue(strategy = javax.persistence.GenerationType.AUTO)
     @Column(name = "id")
     public Long id;
+
+    @Column(name="active", nullable = true)
+    public boolean active = true;
 
     @CreatedDate
     @Column(name = "createdAt")

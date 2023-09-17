@@ -28,12 +28,13 @@ public class CheckPasswordProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         var authRequest = (JwtAuthentication) authentication;
 
-
         final var token = authRequest.getToken();
+
+        System.out.printf("Token is ========> [%s]%n", token);
 
         var jwtGenerator = new JwtGeneratorImpl();
 
-        var email = jwtGenerator.getEmailFromJwt(token);
+        final String email = jwtGenerator.getEmailFromJwt(token);
 
         var user = userService.getUserByEmail(email);
 

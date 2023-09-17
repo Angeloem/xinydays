@@ -11,7 +11,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.servlet.http.HttpServletResponse;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @AllArgsConstructor
@@ -21,11 +26,21 @@ public class WebSecurity {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests(
+        System.out.println("=============> Entering IN");
+        http
+                .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .cors(withDefaults())
+                .authorizeRequests(
                         authorizeRequests -> {
                             authorizeRequests
                                     .antMatchers("/api/auth/**")
                                     .permitAll();
+                            authorizeRequests
+                                    .antMatchers("/api/users/create")
+                                    .permitAll();
+                            authorizeRequests.antMatchers("/error").permitAll();
                             authorizeRequests.anyRequest()
                                     .authenticated();
                         }
@@ -34,6 +49,7 @@ public class WebSecurity {
                         new PasswordConfig().passwordEncoder(),
                         userService));
 
+        System.out.println("=============> Leaving OUT");
         return http.build();
     }
 
@@ -46,10 +62,20 @@ public class WebSecurity {
     @Bean
     ApplicationListener<AuthenticationSuccessEvent> successListener() {
         return event -> {
-            System.out.println(String.format("🎉 [%s] %s",
+            System.out.printf("\uD83C\uDF89 ==> [%s] %s%n",
                     event.getAuthentication().getClass().getSimpleName(),
-                    event.getAuthentication().getName()
-            ));
+                    event.getAuthentication().getCredentials()
+            );
+        };
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            System.out.println(String.format("🎉 Exception handled 🔥🔥🔥🔥🔥 [%s] ", authException.getMessage()));
+            System.out.println(String.format("🎉 Exception handled ==> 🔥🔥🔥🔥🔥 [%s] ",
+                    request.getHeader("Authorization")));
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
         };
     }
 }

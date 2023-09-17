@@ -27,7 +27,8 @@ public class UserAccountConfigurer extends AbstractHttpConfigurer<UserAccountCon
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    public void configure(HttpSecurity http) {
+        System.out.println("CONFIGURING THE BAD BOY");
         var authManager = http.getSharedObject(AuthenticationManager.class);
 
         http.addFilterBefore(

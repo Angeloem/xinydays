@@ -2,17 +2,16 @@ package com.lightema.xinydays.modules.users.entities;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.lightema.xinydays.core.data.entities.Auditable;
+import com.lightema.xinydays.modules.users.models.Role;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 
-import com.lightema.xinydays.modules.projects.entities.Project;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Setter
@@ -39,29 +38,32 @@ public class User extends Auditable implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return role.getAuthorities();
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return this.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override

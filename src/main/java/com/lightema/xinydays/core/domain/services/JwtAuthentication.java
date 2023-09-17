@@ -14,7 +14,7 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
     private final String token;
 
     private JwtAuthentication(UserService userService, Long userId) {
-        super(AuthorityUtils.createAuthorityList("ROLE_robot"));
+        super(AuthorityUtils.createAuthorityList("ROLE_robot", "ROLE_user"));
         super.setAuthenticated(true);
         this.userId = userId;
         this.userService = userService;
@@ -30,10 +30,12 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
     }
 
     public static JwtAuthentication startAuthenticating(String token) {
+        System.out.printf("Entering into the authentication ==> [%s] \n", token);
         return new JwtAuthentication(token);
     }
 
     public static JwtAuthentication finishAuthenticatingAndSetUser(Long id, UserService userService) {
+        System.out.printf("Finishing the authentication ==> [%s] \n", id);
         return new JwtAuthentication(userService, id);
     }
 
@@ -49,7 +51,7 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
         }
 
         //
-        return userService.getUserById(Long.valueOf(userId)).orElse(null);
+        return userService.getUserById(userId).orElse(null);
     }
 
     @Override

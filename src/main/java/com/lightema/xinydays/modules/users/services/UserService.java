@@ -74,11 +74,12 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.printf("[INFO] The user is [%s]  l1\n", "hit-test");
         final User user = userRepository.getByEmail(username);
+        System.out.printf("[INFO] The user is [%s] \n", user);
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities("USER")
                 .accountExpired(!user.isAccountNonExpired())
                 .accountLocked(!user.isAccountNonLocked())
                 .credentialsExpired(!user.isCredentialsNonExpired())

@@ -17,7 +17,7 @@ public class AuthService {
 
     public Map<String, String> generateToken(LoginUserDto loginUserDto) {
         final User user = userService.getUserByEmail(loginUserDto.getEmail());
-        
+
         return this.jwtGenerator.generateToken(UserJWTClaims.fromUser(user));
     }
 
