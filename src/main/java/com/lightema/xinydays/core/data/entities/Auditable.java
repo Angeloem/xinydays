@@ -1,12 +1,16 @@
 package com.lightema.xinydays.core.data.entities;
 
 import com.lightema.xinydays.modules.users.entities.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class Auditable {
@@ -15,8 +19,8 @@ public class Auditable {
     @Column(name = "id")
     public Long id;
 
-    @Column(name="active", nullable = true)
-    public boolean active = true;
+    @Column(name = "active")
+    public boolean active;
 
     @CreatedDate
     @Column(name = "createdAt")
