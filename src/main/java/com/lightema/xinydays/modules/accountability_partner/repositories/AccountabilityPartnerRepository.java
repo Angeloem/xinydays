@@ -1,6 +1,6 @@
-package com.lightema.xinydays.modules.users.repository;
+package com.lightema.xinydays.modules.accountability_partner.repositories;
 
-import com.lightema.xinydays.modules.users.entities.AccountabilityPartner;
+import com.lightema.xinydays.modules.accountability_partner.entities.AccountabilityPartner;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

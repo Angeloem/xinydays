@@ -1,4 +1,4 @@
-package com.lightema.xinydays.modules.users.services;
+package com.lightema.xinydays.modules.accountability_partner.services;
 
 import org.springframework.stereotype.Service;
 

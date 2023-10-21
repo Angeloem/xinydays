@@ -1,6 +1,7 @@
-package com.lightema.xinydays.modules.users.entities;
+package com.lightema.xinydays.modules.accountability_partner.entities;
 
 import com.lightema.xinydays.core.data.entities.Auditable;
+import com.lightema.xinydays.modules.users.entities.User;
 import lombok.Getter;
 import lombok.Setter;
 

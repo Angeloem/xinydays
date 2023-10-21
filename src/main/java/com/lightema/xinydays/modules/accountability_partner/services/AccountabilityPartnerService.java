@@ -1,7 +1,7 @@
-package com.lightema.xinydays.modules.users.services;
+package com.lightema.xinydays.modules.accountability_partner.services;
 
-import com.lightema.xinydays.modules.users.entities.AccountabilityPartner;
-import com.lightema.xinydays.modules.users.repository.AccountabilityPartnerRepository;
+import com.lightema.xinydays.modules.accountability_partner.entities.AccountabilityPartner;
+import com.lightema.xinydays.modules.accountability_partner.repositories.AccountabilityPartnerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

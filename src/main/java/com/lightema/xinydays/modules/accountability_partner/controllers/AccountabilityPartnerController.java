@@ -1,7 +1,7 @@
-package com.lightema.xinydays.modules.users.controllers;
+package com.lightema.xinydays.modules.accountability_partner.controllers;
 
-import com.lightema.xinydays.modules.users.entities.AccountabilityPartner;
-import com.lightema.xinydays.modules.users.services.AccountabilityPartnerService;
+import com.lightema.xinydays.modules.accountability_partner.entities.AccountabilityPartner;
+import com.lightema.xinydays.modules.accountability_partner.services.AccountabilityPartnerService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

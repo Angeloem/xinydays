@@ -1,4 +1,4 @@
-package com.lightema.xinydays.modules.users.controllers;
+package com.lightema.xinydays.modules.accountability_partner.controllers;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

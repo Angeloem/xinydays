@@ -1,4 +1,4 @@
-package com.lightema.xinydays.modules.users.dtos;
+package com.lightema.xinydays.modules.accountability_partner.dtos;
 
 public class AddAccountabilityPartnerDto {
     int projectId;
